@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Search Kata – UAS TBO</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --border: #e5e7eb;
+      --chip: #f1f3f4;
+      --accent: #1a73e8;
+      --card: #ffffff;
+      --shadow: 0 1px 2px rgba(60, 64, 67, .1);
+      --pill: #f8f9fa;
+      --pill-border: #dadce0;
+      --link: #1a73e8;
+    }
+
+    .dark {
+      --bg: #202124;
+      --text: #e8eaed;
+      --muted: #bdc1c6;
+      --border: #3c4043;
+      --chip: #303134;
+      --accent: #8ab4f8;
+      --card: #202124;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+      --pill: #303134;
+      --pill-border: #3c4043;
+      --link: #8ab4f8;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, Segoe UI, Roboto, Ubuntu, Inter, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Topbar */
+    .topbar {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 10px 16px;
+      color: var(--muted);
+    }
+
+    .toggle {
+      border: 1px solid var(--border);
+      background: var(--chip);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+    }
+
+    /* Hero */
+    .hero {
+      margin-top: 8vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 0 16px;
+    }
+
+    .logo {
+      font-size: 64px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      user-select: none;
+    }
+
+    .logo b {
+      color: var(--accent)
+    }
+
+    .searchWrap {
+      position: relative;
+      width: min(760px, 92vw);
+    }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--pill-border);
+      background: var(--pill);
+      border-radius: 999px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .search svg {
+      flex: 0 0 20px;
+      opacity: .6
+    }
+
+    .search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Suggestions */
+    .suggest {
+      position: absolute;
+      top: 54px;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: none;
+      z-index: 10;
+    }
+
+    .s-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .s-item:hover {
+      background: var(--chip);
+    }
+
+    /* Panel judul & artikel */
+    .wrap {
+      width: min(1000px, 94vw);
+      margin: 28px auto 50px;
+      display: none;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .title {
+      font-weight: 600;
+      margin: 0 0 10px 0;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    .item:hover {
+      background: var(--chip);
+    }
+
+    .crumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .crumbs a {
+      color: var(--link);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .crumbs a:hover {
+      text-decoration: underline;
+    }
+
+    .media {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .media img {
+      max-width: 100%;
+      display: block
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--chip);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <button id="mode" class="toggle" aria-label="Toggle mode">Mode Gelap</button>
+  </div>
+
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div class="logo">Search<b>Kata</b></div>
+    <div class="searchWrap">
+      <div class="search" role="search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M11 19a8 8 0 1 1 5.293-14.293A8 8 0 0 1 11 19zm9.707 1.293-4.387-4.387" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <input id="q" type="text" autocomplete="off" placeholder="ketik huruf (mis. N) lalu pilih kata" />
+      </div>
+      <div id="suggest" class="suggest"></div>
+    </div>
+    <p class="muted">Minimal: 15 kata → 5 judul → 3 informasi (gambar, video, deskripsi)</p>
+  </section>
+
+  <!-- LIST JUDUL -->
+  <main id="titlesView" class="wrap">
+    <div class="card">
+      <div class="crumbs">
+        <a href="#" id="backToHome">Beranda</a>
+        <span class="muted">/</span>
+        <span id="crumbWord" class="chip"></span>
+      </div>
+      <h3 class="title">Judul terkait: <span id="wordHead"></span></h3>
+      <div id="titlesList" class="list"></div>
+    </div>
+  </main>
+
+  <!-- ARTIKEL -->
+  <section id="articleView" class="wrap">
+    <div class="card">
+      <div class="crumbs">
+        <a href="#" id="backToTitles">Kembali ke Judul</a>
+      </div>
+      <h2 id="articleTitle" class="title"></h2>
+      <p id="articleSub" class="muted" style="margin-top:-6px"></p>
+
+      <div class="media" style="margin:12px 0">
+        <img id="articleImg" src="" alt="Ilustrasi" referrerpolicy="no-referrer"
+          onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=1200&auto=format&fit=crop';">
+      </div>
+      <p><a id="articleVideo" class="chip" href="#" target="_blank" rel="noopener">Buka tautan video</a></p>
+
+      <div id="articleDesc" style="line-height:1.7"></div>
+    </div>
+  </section>
+
+  <script>
+    // ===== DATASET =====
+    const DATASET = {
+      N: ["Nasi", "Nanas", "Nama", "Nenek", "Naik", "Nakal", "Napas", "Nampak", "Nasehat", "Negeri", "Negatif", "Nuri", "Nira", "Nomor", "November"],
+      // Tambah huruf lain (minimal 15 kata per huruf):
+      // A:["Apel","Ayam", ...], B:[...]
+    };
+
+    // ===== MEDIA MAP =====
+    const IMAGE_MAP = {
+      "Nasi": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Nasi_tumpeng.jpg",
+      "Nanas": "https://upload.wikimedia.org/wikipedia/commons/7/70/Pineapple_and_cross_section.jpg",
+      "Nama": "https://images.unsplash.com/photo-1541534401786-2077eed87a72?w=1200&auto=format&fit=crop"
+    };
+    const VIDEO_MAP = { /* "Nasi":"sBws8MSXN7A" */ };
+    const SENTENCE_MEDIA_MAP = { /* "Kalimat spesifik":{image:"...",video:"..."} */ };
+
+    // ===== GENERATORS =====
+    function generateSentences(word) {
+      return [
+        `${word} sering dibahas dalam konteks sehari-hari.`,
+        `${word} memiliki makna dan penggunaan yang beragam.`,
+        `Contoh penggunaan ${word} dapat ditemukan dalam percakapan sederhana.`,
+        `${word} penting untuk dipahami dalam konteks budaya dan bahasa.`,
+        `Informasi tambahan tentang ${word} membantu memperluas wawasan.`
+      ];
+    }
+    function generateInfo(word, sentence) {
+      const sent = SENTENCE_MEDIA_MAP[sentence] || {};
+      let imageUrl = sent.image || IMAGE_MAP[word] || `https://picsum.photos/seed/${encodeURIComponent(word)}/1200/700`;
+      let videoRef = sent.video || VIDEO_MAP[word];
+      let videoUrl = videoRef
+        ? (/^https?:\/\//.test(videoRef) ? videoRef : `https://www.youtube.com/watch?v=${videoRef}`)
+        : `https://www.youtube.com/results?search_query=${encodeURIComponent(sentence)}`;
+      const desc = `${sentence} Kalimat ini berkaitan dengan kata dasar “${word}”. Media dipetakan dari konfigurasi. ` +
+        `Anda bisa mengganti gambar/video di IMAGE_MAP atau SENTENCE_MEDIA_MAP.`;
+      return { imageUrl, videoUrl, desc };
+    }
+
+    // ===== STATE & DOM =====
+    const q = document.getElementById('q');
+    const suggest = document.getElementById('suggest');
+    const home = document.getElementById('home');
+    const titlesView = document.getElementById('titlesView');
+    const articleView = document.getElementById('articleView');
+
+    const wordHead = document.getElementById('wordHead');
+    const crumbWord = document.getElementById('crumbWord');
+    const titlesList = document.getElementById('titlesList');
+
+    const articleTitle = document.getElementById('articleTitle');
+    const articleSub = document.getElementById('articleSub');
+    const articleImg = document.getElementById('articleImg');
+    const articleVideo = document.getElementById('articleVideo');
+    const articleDesc = document.getElementById('articleDesc');
+
+    let currentWord = null;
+    let currentTitles = [];
+
+    // ===== Helpers tampilan =====
+    function show(el) { el.style.display = 'block'; }
+    function hide(el) { el.style.display = 'none'; }
+
+    function openHome() {
+      hide(titlesView); hide(articleView); show(home);
+      suggest.style.display = 'none';
+    }
+    function openTitles(word) {
+      currentWord = word;
+      const titles = generateSentences(word);
+      currentTitles = titles;
+      titlesList.innerHTML = '';
+      titles.forEach((t, i) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.textContent = t;
+        div.addEventListener('click', () => openArticle(word, t));
+        titlesList.appendChild(div);
+      });
+      wordHead.textContent = word;
+      crumbWord.textContent = word;
+      hide(home); hide(articleView); show(titlesView);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function openArticle(word, title) {
+      const { imageUrl, videoUrl, desc } = generateInfo(word, title);
+      articleTitle.textContent = title;
+      articleSub.textContent = `Kata dasar: ${word}`;
+      articleImg.src = imageUrl;
+      articleVideo.href = videoUrl;
+      articleDesc.textContent = desc;
+      hide(home); hide(titlesView); show(articleView);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ===== Autocomplete =====
+    function getSuggestions(query) {
+      if (!query) return [];
+      const ch = query[0].toUpperCase();
+      const pool = DATASET[ch] || [];
+      return pool.filter(w => w.toUpperCase().startsWith(query.toUpperCase())).slice(0, 10);
+    }
+    function renderSuggestions(items) {
+      if (!items.length) { suggest.style.display = 'none'; suggest.innerHTML = ''; return; }
+      suggest.innerHTML = items.map(w => `<div class="s-item" data-word="${w}">${w}</div>`).join('');
+      suggest.style.display = 'block';
+      [...suggest.querySelectorAll('.s-item')].forEach(el => {
+        el.addEventListener('click', () => {
+          const w = el.dataset.word;
+          q.value = w.toUpperCase();
+          suggest.style.display = 'none';
+          openTitles(w);
+        });
+      });
+    }
+
+    // Debounce input
+    let t = null;
+    q.addEventListener('input', () => {
+      clearTimeout(t);
+      const val = q.value.trim();
+      t = setTimeout(() => renderSuggestions(getSuggestions(val)), 120);
+    });
+    // Klik di luar suggestions → tutup
+    document.addEventListener('click', (e) => {
+      if (!document.querySelector('.searchWrap').contains(e.target)) {
+        suggest.style.display = 'none';
+      }
+    });
+
+    // Breadcrumb
+    document.getElementById('backToHome').addEventListener('click', (e) => { e.preventDefault(); openHome(); });
+    document.getElementById('backToTitles').addEventListener('click', (e) => { e.preventDefault(); if (currentWord) openTitles(currentWord); });
+
+    // Mode gelap
+    const modeBtn = document.getElementById('mode');
+    const setMode = (dark) => { document.body.classList.toggle('dark', dark); modeBtn.textContent = dark ? 'Mode Terang' : 'Mode Gelap'; };
+    setMode(false);
+    modeBtn.addEventListener('click', () => setMode(!document.body.classList.contains('dark')));
+  </script>
+</body>
+
+</html>
