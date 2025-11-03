@@ -569,33 +569,3 @@ window.SENTENCES = {
   ...SENTENCES_C,
 };
 
-// Sudah ada: window.SENTENCES.CAHAYA = [5 kalimat...]
-
-window.MEDIA = window.MEDIA || {};
-window.MEDIA.CAHAYA = [
-  {
-    img: "https://images.unsplash.com/photo-1504198453319-5ce911bafcde?q=80&w=1200",
-    vid: "https://www.youtube.com/embed/nkK_8r9V2p0", // contoh video “light basics”
-    text: "Cahaya merambat lurus pada medium homogen; berlaku pada skala makro."
-  },
-  {
-    img: "https://images.unsplash.com/photo-1482192505345-5655af888cc4?q=80&w=1200",
-    vid: "https://www.youtube.com/embed/2KZb2_vcNTg", // kecepatan cahaya
-    text: "Kecepatan cahaya di vakum ≈ 3×10^8 m/s, konstanta fundamental fisika."
-  },
-  {
-    img: "https://images.unsplash.com/photo-1496302662116-35cc4f36df92?q=80&w=1200",
-    vid: "https://www.youtube.com/embed/6wzHtzsVZr8", // pembiasan
-    text: "Pembiasan terjadi saat cahaya melintas medium beda indeks bias (Snellius)."
-  },
-  {
-    img: "https://images.unsplash.com/photo-1468276311594-df7cb65d8df6?q=80&w=1200",
-    vid: "https://www.youtube.com/embed/4Z9WVZddH9w", // spektrum tampak
-    text: "Spektrum tampak: merah–ungu; tiap warna beda panjang gelombang."
-  },
-  {
-    img: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200",
-    vid: "https://www.youtube.com/embed/fsW9q-iB_7s", // serat optik
-    text: "Serat optik mengandalkan pemantulan total dalam untuk transmisi data."
-  }
-];

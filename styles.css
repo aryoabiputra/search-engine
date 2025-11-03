@@ -192,3 +192,6 @@ button:hover {
         display: none;
     }
 }
+
+.info a { color:#fff; text-decoration:underline; }
+.info a:hover { opacity:.85; }
