@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UAS Teori Bahasa & Automata – Web</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="frame">
+    <div class="hint">Masukkan satu karakter → pilih <b>kata dasar (≥15)</b> → pilih <b>kalimat (≥5)</b> → tampilkan <b>informasi (≥3)</b>.</div>
+
+    <section class="grid">
+      <div class="label">Masukkan Karakter</div>
+      <div class="colon">
+        <div class="row">
+          <input id="charInput" type="text" maxlength="1" placeholder="a–z" />
+          <button id="btnCari">Cari</button>
+          <button id="btnReset">Reset</button>
+        </div>
+      </div>
+
+      <div class="label">Kata<br>Dasar</div>
+      <div class="colon dotline">
+        <div class="box medium">
+          <div id="kataWrap" class="box-inner"></div>
+        </div>
+      </div>
+
+      <div class="label">Kalimat</div>
+      <div class="colon dotline">
+        <div class="box tall">
+          <div id="kalimatWrap" class="box-inner"></div>
+        </div>
+      </div>
+
+      <div class="label">Informasi</div>
+      <div class="colon dotline">
+        <div class="box huge">
+          <div id="infoWrap" class="box-inner info" hidden>
+            <div style="color:#fff;font-weight:600;margin-bottom:4px">Gambar terkait</div>
+            <img id="infoImg" alt="Gambar terkait" />
+            <iframe id="infoVid" title="Video terkait" allowfullscreen></iframe>
+            <div id="infoText" class="sentence" style="background:rgba(0,0,0,.1)"></div>
+          </div>
+          <div id="infoHint" class="muted">Pilih satu <b>kata</b> lalu satu <b>kalimat</b>.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <script src="script.js"></script>
+  <script defer src="dataset.js"></script>
+<script defer src="media.js"></script>
+<!-- <script defer src="main.js"></script> -->
+
+  
+</body>
+</html>
