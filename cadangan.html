@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UAS Teori Bahasa & Automata – Web</title>
+  <style>
+    :root{
+      --ink:#111;           /* teks utama */
+      --muted:#555;         /* teks sekunder */
+      --box:#3f5fd9;        /* biru kotak */
+      --box-ink:#fff;       /* teks di dalam biru */
+      --border:#000;        /* garis bingkai hitam */
+      --gray:#e8e8e8;       /* garis halus */
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial, Helvetica, sans-serif;color:var(--ink);background:#fff}
+
+    /* Bingkai besar seperti contoh */
+    .frame{max-width:1100px;margin:20px auto;border:2px solid var(--border);border-radius:6px;padding:18px 16px}
+
+    /* Header tipis di atas */
+    .hint{margin:-8px 0 10px;text-align:center;color:#777;font-size:13px}
+
+    /* Grid 2 kolom: label kiri, konten kanan */
+    .grid{display:grid;grid-template-columns:180px 1fr;gap:20px 16px;align-items:start}
+    .label{font-size:18px;font-weight:600}
+    .colon{position:relative}
+    .colon::after{content:":";position:absolute;left:-8px;top:0;color:#666}
+
+    /* Input baris pertama */
+    .row{display:flex;gap:8px;align-items:center}
+    input[type="text"]{width:120px;height:36px;border:1px solid #b5b5b5;border-radius:4px;padding:0 10px;font-size:15px}
+    button{height:36px;padding:0 14px;border:1px solid #b5b5b5;background:#f5f5f5;border-radius:4px;cursor:pointer}
+    button:hover{background:#eee}
+
+    /* Kotak biru sesuai mockup */
+    .box{background:var(--box);color:var(--box-ink);border:1px solid #2c49a8;border-radius:4px;padding:10px;min-height:58px}
+    .box.small{width:220px}           /* kotak kecil (input karakter) */
+    .box.medium{min-height:70px}      /* kata dasar */
+    .box.tall{min-height:140px}       /* kalimat */
+    .box.huge{ min-height:220px; height:auto; }       /* informasi */
+
+    /* Isi di dalam kotak biru tetap rapih, hilangkan scrollbar kasar */
+    .box-inner{ /* hilangkan scroll internal */ max-height:none; overflow:visible; }
+    .box-inner::-webkit-scrollbar{display:none}
+
+    /* Kata dasar: tampil sederhana, bukan chip mewah */
+    .word{display:inline-block;margin:4px 6px 0 0;padding:6px 8px;border:1px solid rgba(255,255,255,.4);border-radius:3px;cursor:pointer}
+    .word.active{background:rgba(255,255,255,.15)}
+
+    /* Kalimat list */
+    .sentence{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:3px;padding:8px 10px;margin:6px 0;cursor:pointer}
+    .sentence:hover{background:rgba(255,255,255,.18)}
+
+    /* Informasi */
+    .info img{width:100%;border-radius:3px;border:1px solid rgba(255,255,255,.35)}
+    .info iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:3px}
+    .muted{color:#dfe6ff;opacity:.9;font-size:12px;margin-top:8px}
+
+    /* Garis titik kecil di sisi kanan tiap blok seperti contoh */
+    .dotline{position:relative}
+    .dotline::after{content:"· ·";position:absolute;right:4px;top:-12px;color:#999}
+
+    @media (max-width:760px){
+      .grid{grid-template-columns:1fr}
+      .box.small{width:100%}
+      .colon::after{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="hint">Masukkan satu karakter → pilih <b>kata dasar (≥15)</b> → pilih <b>kalimat (≥5)</b> → tampilkan <b>informasi (≥3)</b>.</div>
+
+    <section class="grid">
+      <!-- Baris 1: Masukkan Karakter -->
+      <div class="label">Masukkan Karakter</div>
+      <div class="colon">
+        <div class="row">
+          <input id="charInput" type="text" maxlength="1" placeholder="a–z" />
+          <button id="btnCari">Cari</button>
+          <button id="btnReset">Reset</button>
+        </div>
+      </div>
+
+      <!-- Baris 2: Kata Dasar -->
+      <div class="label">Kata<br>Dasar</div>
+      <div class="colon dotline">
+        <div class="box medium">
+          <div id="kataWrap" class="box-inner"></div>
+        </div>
+      </div>
+
+      <!-- Baris 3: Kalimat -->
+      <div class="label">Kalimat</div>
+      <div class="colon dotline">
+        <div class="box tall">
+          <div id="kalimatWrap" class="box-inner"></div>
+        </div>
+      </div>
+
+      <!-- Baris 4: Informasi -->
+      <div class="label">Informasi</div>
+      <div class="colon dotline">
+        <div class="box huge">
+          <div id="infoWrap" class="box-inner info" hidden>
+            <div style="color:#fff;font-weight:600;margin-bottom:4px">Gambar terkait</div>
+            <img id="infoImg" alt="Gambar terkait" />
+            <iframe id="infoVid" title="Video terkait" allowfullscreen></iframe>
+            <div id="infoText" class="sentence" style="background:rgba(0,0,0,.1)"></div>
+          </div>
+          <div id="infoHint" class="muted">Pilih satu <b>kata</b> lalu satu <b>kalimat</b>.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /* =========================
+       DATASET (EDIT DI SINI)
+       ========================= */
+    const WORDS_N = [
+      "NASI","NANAS","NAMA","NENEK","NAIK","NAKAL","NAPAS","NAMPAK","NASEHAT","NEGERI",
+      "NEGATIF","NURI","NIRA","NOMOR","NOVEMBER","NOTA","NILAI","NYALA","NYAMAN","NYATA"
+    ];
+    const WORDS_A = ["AIR","AKAR","ALAS","AMAL","ANAK","ANGIN","APEL","ASAM","ASLI","ANTAR","ALUR","AROMA","AMAN","AKTIF","AWAN"];
+    const WORDS_B = ["BOLA","BANGUN","BESAR","BULAN","BAKU","BATAL","BAYAM","BEBAS","BUNGA","BATU","BANYAK","BAGUS","BAGI","BIMBING","BANGGA"];
+    const DATASET = { 'N': WORDS_N, 'A': WORDS_A, 'B': WORDS_B };
+
+    function kalimatFor(word){
+      const w = word.toLowerCase();
+      return [
+        `${word} sering dibahas dalam kehidupan sehari-hari.`,
+        `${word} memiliki contoh nyata di lingkungan sekitar.`,
+        `Pengetahuan tentang ${w} membantu memahami konteks budaya.`,
+        `Media dan bahan ajar kerap menyinggung topik ${w}.`,
+        `Memahami ${w} dapat menambah wawasan dan kosakata.`
+      ];
+    }
+    function informasiFor(sentence){
+      const q = encodeURIComponent(sentence);
+      return {
+        img: `https://source.unsplash.com/featured/?${q}`,
+        vid: `https://www.youtube.com/embed?listType=search&list=${q}`,
+        text: `Ringkasan: ${sentence}. Gambar dari Unsplash (berdasarkan kata kunci), video adalah hasil pencarian YouTube.`
+      };
+    }
+
+    /* =========================
+       LOGIKA
+       ========================= */
+    const charInput = document.getElementById('charInput');
+    const btnCari = document.getElementById('btnCari');
+    const btnReset = document.getElementById('btnReset');
+    const kataWrap = document.getElementById('kataWrap');
+    const kalimatWrap = document.getElementById('kalimatWrap');
+    const infoWrap = document.getElementById('infoWrap');
+    const infoHint = document.getElementById('infoHint');
+    const infoImg = document.getElementById('infoImg');
+    const infoVid = document.getElementById('infoVid');
+    const infoText = document.getElementById('infoText');
+
+    function resetAll(){
+      kataWrap.innerHTML=''; kalimatWrap.innerHTML='';
+      infoWrap.hidden=true; infoHint.style.display='block';
+      infoImg.src=''; infoVid.src=''; infoText.textContent='';
+    }
+    function renderWords(words){
+      kataWrap.innerHTML='';
+      words.forEach(w=>{
+        const el=document.createElement('span'); el.className='word'; el.textContent=w;
+        el.addEventListener('click',()=>selectWord(w,el));
+        kataWrap.appendChild(el);
+      });
+    }
+    function selectWord(word, el){
+      document.querySelectorAll('.word').forEach(n=>n.classList.remove('active'));
+      el.classList.add('active');
+      const s = kalimatFor(word);
+      kalimatWrap.innerHTML='';
+      s.forEach(t=>{
+        const d=document.createElement('div'); d.className='sentence'; d.textContent=t;
+        d.addEventListener('click',()=>selectSentence(t));
+        kalimatWrap.appendChild(d);
+      });
+      infoWrap.hidden=true; infoHint.style.display='block';
+    }
+    function selectSentence(sentence){
+      const info = informasiFor(sentence);
+      infoImg.src=info.img; infoVid.src=info.vid; infoText.textContent=info.text;
+      infoHint.style.display='none'; infoWrap.hidden=false;
+    }
+    function handleSearch(){
+      const ch=(charInput.value||'').trim().toUpperCase();
+      resetAll();
+      if(!ch || ch.length!==1 || !/[A-Z]/.test(ch)) return;
+      renderWords(DATASET[ch]||[]);
+    }
+
+    btnCari.addEventListener('click', handleSearch);
+    btnReset.addEventListener('click', ()=>{charInput.value=''; resetAll();});
+    charInput.addEventListener('keydown', e=>{ if(e.key==='Enter') handleSearch(); });
+
+    // Auto N agar penguji langsung melihat
+    window.addEventListener('DOMContentLoaded',()=>{charInput.value='N'; handleSearch();});
+  </script>
+</body>
+</html>
